@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  © 2026 VeryCoolApps — PT. Agra Karya Digital
+  ALL RIGHTS RESERVED — PROPRIETARY & CONFIDENTIAL
+  =============================================================================
+  @product  SalesDesk Pro v1.0.0 — Personal Sales Desk untuk Tim
+  @license  PROPRIETARY. Dilarang menyalin/memodifikasi/tiru tanpa izin tertulis.
+            Pelanggaran dituntut sesuai UU No. 28/2014 tentang Hak Cipta.
+  =============================================================================
+-->
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self' data:;" />
+  <meta name="copyright" content="© 2026 VeryCoolApps (PT. Agra Karya Digital)" />
+  <title>SalesDesk Pro — VeryCoolApps</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+  <!-- ============ SCREEN: ACTIVATION (lisensi mesin) ============ -->
+  <div id="screen-activate" class="screen hidden">
+    <div class="auth-card glass">
+      <div class="auth-logo">🛡️</div>
+      <h1>SalesDesk Pro</h1>
+      <p class="auth-sub">Aktivasi Lisensi Mesin Diperlukan</p>
+      <p class="auth-desc">SalesDesk Pro terikat ke komputer ini untuk melindungi lisensi. Salin kode di bawah dan kirim ke <b>VeryCoolApps</b> (WA 0815-1925-0845 / t.me/VeryCoolApps) untuk mendapatkan License Key gratis.</p>
+      <div class="fp-box mono" id="act-fingerprint">...</div>
+      <input id="act-key" class="input mono" placeholder="License Key: SDKP-XXXX-XXXX-..." autocomplete="off" />
+      <button class="btn btn-primary btn-block" id="act-btn">Aktivasi Sekarang</button>
+      <p class="auth-error" id="act-error"></p>
+      <div class="auth-footer">© 2026 VeryCoolApps — PT. Agra Karya Digital · WA +62 815-1925-0845 · t.me/VeryCoolApps</div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: TAMPER (aplikasi dimodifikasi) ============ -->
+  <div id="screen-tamper" class="screen hidden">
+    <div class="auth-card glass danger-border">
+      <div class="auth-logo">🚫</div>
+      <h1>Integritas Aplikasi Gagal</h1>
+      <p class="auth-desc">File aplikasi terdeteksi telah <b>dimodifikasi</b>. Demi keamanan data, SalesDesk Pro menolak berjalan.</p>
+      <p class="auth-desc">Instal ulang dari sumber resmi VeryCoolApps. Untuk bantuan: WA 0815-1925-0845 · t.me/VeryCoolApps</p>
+      <button class="btn btn-danger btn-block" id="tamper-quit">Tutup Aplikasi</button>
+      <div class="auth-footer">© 2026 VeryCoolApps — PT. Agra Karya Digital</div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: LOGIN ============ -->
+  <div id="screen-login" class="screen hidden">
+    <div class="auth-wrap">
+      <div class="auth-card glass">
+        <div class="auth-logo">📈</div>
+        <h1>SalesDesk <span class="grad-text">Pro</span></h1>
+        <p class="auth-sub">Personal Sales Desk untuk Tim — 100% Offline · 100% Gratis</p>
+        <form id="login-form">
+          <input id="login-user" class="input" placeholder="Username" autocomplete="username" />
+          <input id="login-pass" class="input" type="password" placeholder="Password" autocomplete="current-password" />
+          <button class="btn btn-primary btn-block" type="submit">Masuk</button>
+        </form>
+        <p class="auth-error" id="login-error"></p>
+        <p class="auth-tip">Gagal login 5× akan terkunci 30 detik.</p>
+        <div class="auth-footer">© 2026 VeryCoolApps — PT. Agra Karya Digital · WA +62 815-1925-0845 · t.me/VeryCoolApps</div>
+      </div>
+      <div class="auth-hero hidden-lg">
+        <h2>Lihat dashboard,<br/>langsung tahu kondisi tim.</h2>
+        <p>CRM Pipeline · Mesin Komisi Otomatis · 19 Widget Dashboard · Target &amp; KPI · Laporan Excel — semua offline, data milik Anda.</p>
+        <div class="hero-badges">
+          <span>🔒 Data lokal terenkripsi</span>
+          <span>💰 Komisi transparan</span>
+          <span>📊 19 widget dashboard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: LOCK ============ -->
+  <div id="screen-lock" class="screen hidden">
+    <div class="auth-card glass">
+      <div class="auth-logo">🔒</div>
+      <h1>Aplikasi Terkunci</h1>
+      <p class="auth-sub" id="lock-user"></p>
+      <input id="lock-pass" class="input" type="password" placeholder="Password untuk membuka" />
+      <button class="btn btn-primary btn-block" id="lock-btn">Buka Kunci</button>
+      <p class="auth-error" id="lock-error"></p>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN: APP ============ -->
+  <div id="screen-app" class="hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">📈</div>
+        <div>
+          <div class="brand-name">SalesDesk <b>Pro</b></div>
+          <div class="brand-sub">VeryCoolApps</div>
+        </div>
+      </div>
+      <nav id="nav" class="nav"></nav>
+      <div class="sidebar-foot">
+        <div class="brand-sub">© 2026 PT. Agra Karya Digital</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar glass">
+        <div class="topbar-left">
+          <h2 id="page-title">Dashboard</h2>
+          <span class="page-sub" id="page-sub"></span>
+        </div>
+        <div class="topbar-right">
+          <div class="global-search">
+            <input id="global-search" class="input" placeholder="Cari prospek, deal, kontak…" />
+          </div>
+          <button class="icon-btn" id="btn-quick-prospect" title="+ Prospek (Ctrl+N)">➕</button>
+          <button class="icon-btn" id="btn-quick-followup" title="+ Follow-up (Ctrl+F)">⏰</button>
+          <button class="icon-btn" id="btn-quick-meeting" title="+ Meeting (Ctrl+M)">🗓️</button>
+          <button class="icon-btn" id="btn-theme" title="Ganti tema">🌓</button>
+          <button class="icon-btn" id="btn-lock" title="Kunci (Ctrl+L)">🔒</button>
+          <div class="user-chip" id="user-chip" title="Klik untuk menu user">
+            <span id="user-avatar">👤</span>
+            <div>
+              <div class="user-name" id="user-name">—</div>
+              <div class="user-role" id="user-role">—</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="content" id="content">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Memuat data…</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ============ MODAL HOST ============ -->
+  <div id="modal-host"></div>
+  <div id="toast-host"></div>
+  <div id="user-menu" class="dropdown hidden"></div>
+
+  <script src="js/lib.js"></script>
+  <script src="js/pages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

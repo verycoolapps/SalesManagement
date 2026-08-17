@@ -1,0 +1,59 @@
+{
+  "name": "salesdesk-pro",
+  "productName": "SalesDesk Pro",
+  "version": "1.0.0",
+  "description": "SalesDesk Pro — Personal Sales Desk untuk Tim. CRM Pipeline + Mesin Komisi + Dashboard Performa. 100% OFFLINE. 100% GRATIS.",
+  "author": "VeryCoolApps (PT. Agra Karya Digital)",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "electron .",
+    "obfuscate": "node scripts/obfuscate.js",
+    "build:win": "node scripts/obfuscate.js && electron-builder --win nsis --x64",
+    "gen:license": "node scripts/license-gen.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "sql.js": "^1.10.3"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "javascript-obfuscator": "^4.1.1"
+  },
+  "build": {
+    "appId": "id.co.verycoolapps.salesdeskpro",
+    "productName": "SalesDesk Pro",
+    "copyright": "© 2026 VeryCoolApps (PT. Agra Karya Digital). All Rights Reserved.",
+    "asar": true,
+    "compression": "maximum",
+    "npmRebuild": false,
+    "afterPack": "scripts/after-pack.js",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "renderer/**/*"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "SalesDeskPro-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SalesDesk Pro",
+      "uninstallDisplayName": "SalesDesk Pro — VeryCoolApps",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "license": "docs/EULA.txt"
+    }
+  }
+}

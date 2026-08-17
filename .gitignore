@@ -1,0 +1,7 @@
+# © 2026 VeryCoolApps (PT. Agra Karya Digital) — build artifacts
+node_modules/
+dist/
+release/
+core/sql-wasm.wasm
+*.log
+.DS_Store
