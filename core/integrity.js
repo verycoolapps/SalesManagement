@@ -67,8 +67,7 @@ function verifyAsar() {
   let sig = null;
   try { sig = JSON.parse(fs.readFileSync(sigPath, 'utf8')); } catch (e) { sig = null; }
   if (!sig || !sig.hash) return { ok: true, checked: false, note: 'invalid sig' };
-  const expected = C.hmac(C.integrityKey(), sig.hash).slice(0, 64);
-  const ok = h === expected;
+  const ok = h === sig.hash; // FIX: bandingkan hash runtime dgn hash build (sebelumnya di-HMAC, tak mungkin cocok)
   return { ok, checked: true };
 }
 
