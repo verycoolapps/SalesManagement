@@ -8,6 +8,7 @@
 const AppState = {
   user: null,
   boot: null,
+  ctx: null,
   currentPage: 'dashboard',
   dashboardPeriod: 'day',
   navigate: null
@@ -21,20 +22,20 @@ function debounce(fn, ms) {
 /* ---------------- Boot ---------------- */
 
 async function boot() {
-  const boot = await window.sdp.boot();
-  AppState.boot = boot;
+  const info = await window.sdp.boot();
+  AppState.boot = info;
 
   $('#tamper-quit').onclick = () => window.sdp.quit();
 
-  if (boot.tampered) {
+  if (info.tampered) {
     showScreen('screen-tamper');
     return;
   }
-  if (!boot.licensed) {
+
+  if (!info.licensed) {
     showScreen('screen-activate');
-    $('#act-fingerprint').textContent = 'Fingerprint mesin: ' + boot.fingerprintLabel + '\n' + boot.fingerprint;
+    $('#act-fingerprint').textContent = info.fingerprintLabel || info.fingerprint || '-';
     $('#act-btn').onclick = doActivate;
-    $('#act-key').addEventListener('keydown', (e) => { if (e.key === 'Enter') doActivate(); });
     return;
   }
 
@@ -97,6 +98,7 @@ async function mustChangePw() {
 /* ---------------- App shell ---------------- */
 
 function enterApp() {
+  AppState.ctx = { user: AppState.user, boot: AppState.boot };
   showScreen('screen-app');
   setupShell();
 }

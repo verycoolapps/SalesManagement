@@ -13,7 +13,8 @@ Pages.dashboard = {
   title: 'Dashboard',
   render: async (box, ctx) => {
     box.innerHTML = '<div class="loading"><div class="spinner"></div><p>Menghitung widget…</p></div>';
-    const data = await svc('dashboard', 'day');
+    const period = AppState.dashboardPeriod || 'day';
+    const data = await svc('dashboard', period);
     const settings = await svc('getSettings');
     const isTeam = ctx.user.role !== 'Sales';
 
@@ -254,6 +255,7 @@ Pages.dashboard = {
 };
 
 Pages.dashboardPeriod = (p) => {
+  AppState.dashboardPeriod = p || 'day';
   const box = $('#content');
   Pages.dashboard.render(box, AppState.ctx).catch(e => toast('Gagal memuat dashboard', e.message, 'error'));
 };

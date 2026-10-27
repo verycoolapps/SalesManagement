@@ -65,7 +65,7 @@ function main() {
 
   // 3) Generate manifest.sig (hash file inti — diverifikasi saat runtime)
   const files = ['crypto.js', 'db.js', 'license.js', 'integrity.js', 'services.js'];
-  const manifest = { app: 'SalesDeskPro', version: '1.0.0', generated: new Date().toISOString(), files: {} };
+  const manifest = { app: 'SalesDeskPro', version: '1.0.1', generated: new Date().toISOString(), files: {} };
   for (const f of files) {
     const buf = fs.readFileSync(path.join(dist, 'core', f));
     manifest.files[f] = crypto.createHash('sha256').update(buf).digest('hex');

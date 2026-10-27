@@ -1,7 +1,7 @@
 {
   "name": "salesdesk-pro",
   "productName": "SalesDesk Pro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SalesDesk Pro — Personal Sales Desk untuk Tim. CRM Pipeline + Mesin Komisi + Dashboard Performa. 100% OFFLINE. 100% GRATIS.",
   "author": "VeryCoolApps (PT. Agra Karya Digital)",
   "license": "SEE LICENSE IN LICENSE.md",
@@ -26,6 +26,9 @@
     "productName": "SalesDesk Pro",
     "copyright": "© 2026 VeryCoolApps (PT. Agra Karya Digital). All Rights Reserved.",
     "asar": true,
+    "asarUnpack": [
+      "**/sql-wasm.wasm"
+    ],
     "compression": "maximum",
     "npmRebuild": false,
     "afterPack": "scripts/after-pack.js",
@@ -42,7 +45,10 @@
         { "target": "nsis", "arch": ["x64"] }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "SalesDeskPro-Setup-${version}.${ext}"
+      "artifactName": "SalesDeskPro-Setup-${version}.${ext}",
+      "requestedExecutionLevel": "asInvoker",
+      "signingHashAlgorithms": ["sha256"],
+      "verifyUpdateCodeSignature": false
     },
     "nsis": {
       "oneClick": false,
@@ -53,7 +59,9 @@
       "uninstallDisplayName": "SalesDesk Pro — VeryCoolApps",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "license": "docs/EULA.txt"
+      "license": "docs/EULA.txt",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
     }
   }
 }

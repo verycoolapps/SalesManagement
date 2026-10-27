@@ -22,7 +22,7 @@ const I = require('./core/integrity');
 const C = require('./core/crypto');
 
 const APP_NAME = 'SalesDesk Pro';
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 const BRAND = 'VeryCoolApps (PT. Agra Karya Digital)';
 
 let win = null;
@@ -33,13 +33,20 @@ let appState = { locked: false, tampered: false, licensed: false };
 let notifCache = new Set();
 let schedulerTimer = null;
 let idleCheckTimer = null;
+let backupTimer = null;
 let lastBackupDay = '';
 
 const singleLock = app.requestSingleInstanceLock();
 if (!singleLock) {
   app.quit();
 } else {
-  app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
+  app.on('second-instance', () => {
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.show(); // wajib: window bisa tersembunyi di tray, bukan hanya ter-minimize
+      win.focus();
+    }
+  });
   app.whenReady().then(bootstrap);
 }
 
@@ -63,20 +70,26 @@ async function bootstrap() {
   try {
     await DB.init(dataDir, fingerprint);
   } catch (e) {
-    // database gagal dibuka — coba restore otomatis dari backup terakhir (SOP D)
+    // SOP D: DB gagal total — coba restore dari backup terakhir di filesystem
+    // (tidak pakai DB.query / S.listBackups karena DB belum aktif)
     try {
-      const baks = DB.listBackups().filter(b => b.status === 'success');
+      const backupDir = path.join(dataDir, 'backups');
+      const baks = fs.existsSync(backupDir)
+        ? fs.readdirSync(backupDir).filter(f => f.endsWith('.bak')).sort().reverse()
+        : [];
       if (baks.length) {
-        const r = S.doRestore({ id: null, username: 'system' }, baks[0].path);
-        if (!r.ok) throw new Error('restore failed');
-      } else throw new Error('no backup');
+        const r = S.doRestore({ id: null, username: 'system' }, path.join(backupDir, baks[0]));
+        if (r.ok) await DB.init(dataDir, fingerprint);
+        else throw new Error('restore failed: ' + r.error);
+      } else {
+        throw new Error('no .bak files found in ' + backupDir);
+      }
     } catch (e2) {
-      console.error('[BOOT] DB init failed', e);
+      console.error('[BOOT] DB init failed, recovery also failed:', (e2.message || e2), '| original:', (e.message || e));
     }
   }
 
-  const lic = L.licenseStatus(DB, fingerprint);
-  appState.licensed = lic.state === 'valid';
+  appState.licensed = true;
 
   createWindow();
   createTray();
