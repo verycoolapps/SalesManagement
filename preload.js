@@ -12,6 +12,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 const api = {
   boot: () => ipcRenderer.invoke('app:boot'),
+  register: (data) => ipcRenderer.invoke('auth:register', data),
   login: (u, p) => ipcRenderer.invoke('auth:login', u, p),
   logout: () => ipcRenderer.invoke('auth:logout'),
   lock: () => ipcRenderer.invoke('auth:lock'),
