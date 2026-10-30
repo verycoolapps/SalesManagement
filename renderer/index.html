@@ -46,6 +46,45 @@
     </div>
   </div>
 
+  <!-- ============ SCREEN: REGISTER (first-time setup) ============ -->
+  <div id="screen-register" class="screen hidden">
+    <div class="auth-wrap">
+      <div class="auth-card glass" style="max-width:420px">
+        <div class="auth-logo">🚀</div>
+        <h1>Selamat Datang di<br/><span class="grad-text">SalesDesk Pro</span></h1>
+        <p class="auth-sub">Buat akun Admin pertama untuk mulai</p>
+        <p class="auth-tip" style="margin-bottom:12px">Setup ini hanya muncul sekali. Akun ini akan menjadi Administrator utama aplikasi.</p>
+        <form id="register-form">
+          <label class="field-label">Nama Lengkap / Full Name</label>
+          <input id="reg-name" class="input" placeholder="cth: Budi Santoso" autocomplete="name" required />
+          <label class="field-label" style="margin-top:10px">Nama Perusahaan / Company</label>
+          <input id="reg-company" class="input" placeholder="cth: PT. Maju Bersama" autocomplete="organization" />
+          <label class="field-label" style="margin-top:10px">Username</label>
+          <input id="reg-user" class="input" placeholder="cth: admin (min 3 karakter)" autocomplete="username" required />
+          <label class="field-label" style="margin-top:10px">Password</label>
+          <input id="reg-pass" class="input" type="password" placeholder="Minimal 8 karakter" autocomplete="new-password" required />
+          <label class="field-label" style="margin-top:10px">Ulangi Password / Confirm Password</label>
+          <input id="reg-pass2" class="input" type="password" placeholder="Ulangi password" autocomplete="new-password" required />
+          <button class="btn btn-primary btn-block" type="submit" id="reg-btn" style="margin-top:16px">
+            Buat Akun &amp; Mulai →
+          </button>
+        </form>
+        <p class="auth-error" id="reg-error"></p>
+        <div class="auth-footer">© 2026 VeryCoolApps — MIT License · 100% Offline · Data milik Anda</div>
+      </div>
+      <div class="auth-hero hidden-lg">
+        <h2>Mulai kelola tim sales<br/>dengan lebih cerdas.</h2>
+        <p>CRM Pipeline · Mesin Komisi Otomatis · 19 Widget Dashboard · Target &amp; KPI · Laporan Excel — semua offline, data milik Anda.</p>
+        <div class="hero-badges">
+          <span>🔒 Data lokal terenkripsi</span>
+          <span>💰 Komisi transparan</span>
+          <span>📊 19 widget dashboard</span>
+          <span>🌐 MIT License — Gratis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ SCREEN: LOGIN ============ -->
   <div id="screen-login" class="screen hidden">
     <div class="auth-wrap">
@@ -60,7 +99,7 @@
         </form>
         <p class="auth-error" id="login-error"></p>
         <p class="auth-tip">Gagal login 5× akan terkunci 30 detik.</p>
-        <div class="auth-footer">© 2026 VeryCoolApps — PT. Agra Karya Digital · WA +62 815-1925-0845 · t.me/VeryCoolApps</div>
+        <div class="auth-footer">© 2026 VeryCoolApps — MIT License · 100% Offline</div>
       </div>
       <div class="auth-hero hidden-lg">
         <h2>Lihat dashboard,<br/>langsung tahu kondisi tim.</h2>
