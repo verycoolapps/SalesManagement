@@ -22,8 +22,8 @@ const I = require('./core/integrity');
 const C = require('./core/crypto');
 
 const APP_NAME = 'SalesDesk Pro';
-const APP_VERSION = '1.0.1';
-const BRAND = 'VeryCoolApps (PT. Agra Karya Digital)';
+const APP_VERSION = '2.0.0';
+const BRAND = 'VeryCoolApps (PT. Agra Karya Digital) — MIT License';
 
 let win = null;
 let tray = null;
@@ -115,7 +115,7 @@ function createWindow() {
     minHeight: 700,
     show: false,
     backgroundColor: '#0b1120',
-    icon: path.join(__dirname, '..', 'renderer', 'assets', 'icon.png'),
+    icon: path.join(__dirname, 'renderer', 'assets', 'icon.png'),
     title: APP_NAME,
     autoHideMenuBar: true,
     webPreferences: {
@@ -129,7 +129,7 @@ function createWindow() {
     }
   });
   win.setMenuBarVisibility(false);
-  win.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
+  win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
   win.once('ready-to-show', () => win.show());
   win.on('close', (e) => {
     if (!appState.quitting) {
@@ -141,7 +141,7 @@ function createWindow() {
 }
 
 function createTray() {
-  const icoPath = path.join(__dirname, '..', 'renderer', 'assets', 'tray.png');
+  const icoPath = path.join(__dirname, 'renderer', 'assets', 'tray.png');
   let img = null;
   try { img = nativeImage.createFromPath(icoPath); } catch (e) {}
   if (!img || img.isEmpty()) return;

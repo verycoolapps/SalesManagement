@@ -1,16 +1,18 @@
 {
   "name": "salesdesk-pro",
   "productName": "SalesDesk Pro",
-  "version": "1.0.1",
-  "description": "SalesDesk Pro — Personal Sales Desk untuk Tim. CRM Pipeline + Mesin Komisi + Dashboard Performa. 100% OFFLINE. 100% GRATIS.",
+  "version": "2.0.0",
+  "description": "SalesDesk Pro — CRM Pipeline + Komisi + Dashboard Performa. 100% OFFLINE. 100% GRATIS. MIT License.",
   "author": "VeryCoolApps (PT. Agra Karya Digital)",
-  "license": "SEE LICENSE IN LICENSE.md",
-  "main": "dist/main.js",
+  "license": "MIT",
+  "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "obfuscate": "node scripts/obfuscate.js",
-    "build:win": "node scripts/obfuscate.js && electron-builder --win nsis --x64",
-    "gen:license": "node scripts/license-gen.js"
+    "dev": "electron . --dev",
+    "build:mac": "electron-builder --mac dmg --universal",
+    "build:win": "electron-builder --win nsis --x64",
+    "build:win-zip": "electron-builder --win zip --x64",
+    "build:all": "electron-builder --mac dmg --universal && electron-builder --win nsis --x64"
   },
   "dependencies": {
     "exceljs": "^4.4.0",
@@ -18,18 +20,17 @@
   },
   "devDependencies": {
     "electron": "^31.7.7",
-    "electron-builder": "^24.13.3",
-    "javascript-obfuscator": "^4.1.1"
+    "electron-builder": "^24.13.3"
   },
   "build": {
     "appId": "id.co.verycoolapps.salesdeskpro",
     "productName": "SalesDesk Pro",
-    "copyright": "© 2026 VeryCoolApps (PT. Agra Karya Digital). All Rights Reserved.",
+    "copyright": "Copyright © 2026 VeryCoolApps (PT. Agra Karya Digital) — MIT License",
     "asar": true,
     "asarUnpack": [
       "**/sql-wasm.wasm"
     ],
-    "compression": "maximum",
+    "compression": "normal",
     "npmRebuild": false,
     "afterPack": "scripts/after-pack.js",
     "directories": {
@@ -37,18 +38,40 @@
       "buildResources": "build"
     },
     "files": [
-      "dist/**/*",
-      "renderer/**/*"
+      "main.js",
+      "preload.js",
+      "core/**/*",
+      "renderer/**/*",
+      "!renderer/**/*.map"
     ],
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["universal"] }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.business",
+      "artifactName": "SalesDeskPro-${version}-mac.${ext}",
+      "darkModeSupport": true,
+      "minimumSystemVersion": "12.0"
+    },
+    "dmg": {
+      "title": "SalesDesk Pro ${version}",
+      "icon": "build/icon.icns",
+      "iconSize": 128,
+      "window": { "width": 660, "height": 400 },
+      "contents": [
+        { "x": 180, "y": 200, "type": "file" },
+        { "x": 480, "y": 200, "type": "link", "path": "/Applications" }
+      ]
+    },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "zip",  "arch": ["x64"] }
       ],
       "icon": "build/icon.ico",
       "artifactName": "SalesDeskPro-Setup-${version}.${ext}",
-      "requestedExecutionLevel": "asInvoker",
-      "signingHashAlgorithms": ["sha256"],
-      "verifyUpdateCodeSignature": false
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "oneClick": false,
@@ -59,7 +82,6 @@
       "uninstallDisplayName": "SalesDesk Pro — VeryCoolApps",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "license": "docs/EULA.txt",
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false
     }
