@@ -152,7 +152,20 @@ async function init(dataDir, fingerprint) {
   fs.mkdirSync(appDataPath, { recursive: true });
   dbPath = path.join(appDataPath, 'salesdesk.data');
 
-  SQL = await initSqlJs({ locateFile: (f) => path.join(__dirname, f) });
+  SQL = await initSqlJs({
+    locateFile: (f) => {
+      // 1. Same dir as db.js (obfuscated/copied build)
+      const p1 = path.join(__dirname, f);
+      if (fs.existsSync(p1)) return p1;
+      // 2. Next to sql.js main entry — works in dev (node_modules) and
+      //    in production asar (Electron redirects to app.asar.unpacked)
+      try {
+        return path.join(path.dirname(require.resolve('sql.js')), f);
+      } catch (_) {}
+      // 3. Explicit node_modules fallback
+      return path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', f);
+    }
+  });
   const raw = loadRawFile(dbPath);
   if (raw) {
     try {
