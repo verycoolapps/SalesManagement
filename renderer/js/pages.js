@@ -137,7 +137,7 @@ Pages.dashboard = {
 
     const actTypes = (data.activity_today.types || []).map(t => t.type + ': ' + t.c).join(' · ');
     const wAct = `
-      <div class="card widget" data-nav="activities">
+      <div class="card widget" data-nav="followups">
         <div class="w-head"><div class="w-title">📞 Activity Counter</div></div>
         <div class="w-big">${data.activity_today.count}</div>
         <div class="w-sub">${actTypes || 'Belum ada aktivitas hari ini'}</div>
@@ -168,7 +168,7 @@ Pages.dashboard = {
       </div>`;
 
     const wRecent = `
-      <div class="card widget widget-tall" data-nav="activities">
+      <div class="card widget widget-tall" data-nav="followups">
         <div class="w-head"><div class="w-title">🕒 Recent Activity</div></div>
         <div class="widget-list">
           ${data.recent_activity.length ? data.recent_activity.map(a => `
@@ -803,8 +803,9 @@ Pages.completeFollowup = async (id) => {
 Pages.deleteFollowup = async (id) => {
   const reason = await reasonDialog('Hapus Follow-up', '', { danger: true, yes: 'Hapus' });
   if (!reason) return;
-  await svc('deleteFollowup', id, reason);
-  toast('Follow-up dihapus', '', 'success'); Pages.nav('followups');
+  const r = await tryCatch(() => svc('deleteFollowup', id, reason));
+  toast(r.ok ? 'Follow-up dihapus' : 'Gagal', r.ok ? '' : r.error, r.ok ? 'success' : 'error');
+  if (r.ok) Pages.nav('followups');
 };
 
 /* ================= MEETINGS ================= */
@@ -866,8 +867,9 @@ Pages.meetingForm = async () => {
 Pages.deleteMeeting = async (id) => {
   const reason = await reasonDialog('Hapus Meeting', '', { danger: true, yes: 'Hapus' });
   if (!reason) return;
-  await svc('deleteMeeting', id, reason);
-  toast('Meeting dihapus', '', 'success'); Pages.nav('meetings');
+  const r = await tryCatch(() => svc('deleteMeeting', id, reason));
+  toast(r.ok ? 'Meeting dihapus' : 'Gagal', r.ok ? '' : r.error, r.ok ? 'success' : 'error');
+  if (r.ok) Pages.nav('meetings');
 };
 
 /* ================= TARGET & KPI ================= */
@@ -1249,7 +1251,7 @@ Pages.settings = {
             <p class="muted small mb">Database terenkripsi AES-256-GCM. Backup otomatis harian pukul <b>${esc(settings.backup_hour || '22')}:00</b> (rolling 7).</p>
             <div class="row-flex">
               <button class="btn btn-primary" onclick="Pages.doBackup()">Backup Sekarang</button>
-              <label class="row-flex small"><input type="checkbox" id="bak-auto" ${settings.backup_enabled === '1' ? 'checked' : ''}> Backup otomatis</label>
+              <label class="row-flex small"><input type="checkbox" id="bak-auto" onchange="Pages.saveBackupAuto(this.checked)" ${settings.backup_enabled === '1' ? 'checked' : ''}> Backup otomatis</label>
             </div>
             <div class="mt muted small">Lokasi: <span class="mono">${esc(AppState.boot.dataDir + '\\backups')}</span></div>
           </div>
@@ -1453,6 +1455,10 @@ Pages.integrityCheck = async () => {
   m.$('[data-close]').onclick = m.close;
 };
 
+Pages.saveBackupAuto = async (checked) => {
+  await tryCatch(() => svc('saveSettings', { backup_enabled: checked ? '1' : '0' }));
+};
+
 Pages.saveSettings = async () => {
   const r = await tryCatch(() => svc('saveSettings', {
     company_name: $('#set-company').value, license_holder: $('#set-holder').value,
@@ -1464,8 +1470,7 @@ Pages.saveSettings = async () => {
 Pages.saveSecurity = async () => {
   const r = await tryCatch(() => svc('saveSettings', {
     min_password_len: $('#sec-minpw').value, auto_lock_min: $('#sec-lock').value,
-    lockout_attempts: $('#sec-attempts').value, notification_enabled: $('#sec-notif').value,
-    backup_enabled: $('#bak-auto') ? ($('#bak-auto').checked ? '1' : '0') : undefined
+    lockout_attempts: $('#sec-attempts').value, notification_enabled: $('#sec-notif').value
   }));
   toast(r.ok ? 'Kebijakan keamanan tersimpan' : 'Gagal', r.ok ? '' : r.error, r.ok ? 'success' : 'error');
 };
