@@ -22,7 +22,7 @@ const I = require('./core/integrity');
 const C = require('./core/crypto');
 
 const APP_NAME = 'SalesDesk Pro';
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const BRAND = 'VeryCoolApps (PT. Agra Karya Digital) — MIT License';
 
 let win = null;

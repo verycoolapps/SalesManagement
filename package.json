@@ -1,7 +1,7 @@
 {
   "name": "salesdesk-pro",
   "productName": "SalesDesk Pro",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "SalesDesk Pro — CRM Pipeline + Komisi + Dashboard Performa. 100% OFFLINE. 100% GRATIS. MIT License.",
   "author": "VeryCoolApps (PT. Agra Karya Digital)",
   "license": "MIT",
@@ -28,7 +28,8 @@
     "copyright": "Copyright © 2026 VeryCoolApps (PT. Agra Karya Digital) — MIT License",
     "asar": true,
     "asarUnpack": [
-      "**/sql-wasm.wasm"
+      "**/sql-wasm.wasm",
+      "**/sql.js/dist/sql-wasm.wasm"
     ],
     "compression": "normal",
     "npmRebuild": false,
