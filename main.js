@@ -204,12 +204,28 @@ function setupIpc() {
   // First-time registration: only works when no users exist yet
   ipcMain.handle('auth:register', (e, data) => {
     try {
-      const r = DB.get("SELECT count(*) AS c FROM users WHERE deleted_at IS NULL");
-      if (r && r.c > 0) return { ok: false, error: 'Akun sudah ada. Gunakan login.' };
-    } catch (err) {}
-    // Use null actor for first admin creation
-    const result = S.createUser(null, { ...data, role: 'Admin', status: 'Active', must_change: false });
-    return result;
+      let userCount = 0;
+      try {
+        const r = DB.get("SELECT count(*) AS c FROM users WHERE deleted_at IS NULL");
+        userCount = r ? Number(r.c) : 0;
+      } catch (_) {}
+      if (userCount > 0) return { ok: false, error: 'Akun sudah ada. Silakan login.' };
+
+      // Use system actor for first admin creation
+      const systemActor = { id: null, username: 'system' };
+      const result = S.createUser(systemActor, {
+        name:      String(data.name     || '').trim(),
+        username:  String(data.username || '').trim(),
+        password:  String(data.password || ''),
+        role:      'Admin',
+        status:    'Active',
+        must_change: false
+      });
+      return result;
+    } catch (err) {
+      console.error('[REGISTER ERROR]', err);
+      return { ok: false, error: String(err && err.message ? err.message : err) };
+    }
   });
 
   ipcMain.handle('auth:login', (e, username, password) => {
