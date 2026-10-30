@@ -227,9 +227,7 @@ function seed() {
     ['Follow-up Deal', 'Halo {nama}, kami ingin memastikan kelanjutan kerja sama {produk}.']
   ];
   tmpls.forEach(tp => run("INSERT OR IGNORE INTO followup_templates(name,template,created_at) VALUES(?,?,?)", [tp[0], tp[1], t]));
-  // Default admin
-  const hash = C.hashPassword('admin123');
-  run("INSERT OR IGNORE INTO users(username,password_hash,name,role,status,must_change_password,created_at) VALUES('admin',?,'Administrator','Admin','Active',1,?)", [hash, t]);
+  // No default admin — user creates their own account via registration screen on first launch.
   // Settings
   const settings = {
     company_name: '',
