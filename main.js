@@ -185,14 +185,31 @@ const SVC_WHITELIST = {
 
 function setupIpc() {
   ipcMain.handle('app:boot', () => {
+    let hasUsers = false;
+    try {
+      const r = DB.get("SELECT count(*) AS c FROM users WHERE deleted_at IS NULL");
+      hasUsers = r && r.c > 0;
+    } catch (e) {}
     return {
       app: APP_NAME, version: APP_VERSION, brand: BRAND,
       tampered: appState.tampered,
       licensed: appState.licensed,
       fingerprint: fingerprint,
       fingerprintLabel: L.fingerprintLabel(fingerprint),
-      dataDir: S.appDataDir()
+      dataDir: S.appDataDir(),
+      hasUsers
     };
+  });
+
+  // First-time registration: only works when no users exist yet
+  ipcMain.handle('auth:register', (e, data) => {
+    try {
+      const r = DB.get("SELECT count(*) AS c FROM users WHERE deleted_at IS NULL");
+      if (r && r.c > 0) return { ok: false, error: 'Akun sudah ada. Gunakan login.' };
+    } catch (err) {}
+    // Use null actor for first admin creation
+    const result = S.createUser(null, { ...data, role: 'Admin', status: 'Active', must_change: false });
+    return result;
   });
 
   ipcMain.handle('auth:login', (e, username, password) => {
