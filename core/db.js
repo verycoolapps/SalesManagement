@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS teams (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL, manager_id INTEGER, created_at TEXT NOT NULL, deleted_at TEXT
+  name TEXT NOT NULL, manager_id INTEGER, created_at TEXT NOT NULL, updated_at TEXT, deleted_at TEXT
 );
 CREATE TABLE IF NOT EXISTS prospects (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS meetings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL, participants TEXT, start_time TEXT NOT NULL,
   location TEXT, agenda TEXT, prospect_id INTEGER, deal_id INTEGER,
-  reminder_min INTEGER NOT NULL DEFAULT 15,
+  user_id INTEGER, reminder_min INTEGER NOT NULL DEFAULT 15,
   created_at TEXT NOT NULL, updated_at TEXT, deleted_at TEXT
 );
 CREATE TABLE IF NOT EXISTS targets (
@@ -152,7 +152,20 @@ async function init(dataDir, fingerprint) {
   fs.mkdirSync(appDataPath, { recursive: true });
   dbPath = path.join(appDataPath, 'salesdesk.data');
 
-  SQL = await initSqlJs({ locateFile: (f) => path.join(__dirname, f) });
+  SQL = await initSqlJs({
+    locateFile: (f) => {
+      // 1. Same dir as db.js (obfuscated/copied build)
+      const p1 = path.join(__dirname, f);
+      if (fs.existsSync(p1)) return p1;
+      // 2. Next to sql.js main entry — works in dev (node_modules) and
+      //    in production asar (Electron redirects to app.asar.unpacked)
+      try {
+        return path.join(path.dirname(require.resolve('sql.js')), f);
+      } catch (_) {}
+      // 3. Explicit node_modules fallback
+      return path.join(__dirname, '..', 'node_modules', 'sql.js', 'dist', f);
+    }
+  });
   const raw = loadRawFile(dbPath);
   if (raw) {
     try {
@@ -187,6 +200,17 @@ function loadRawFile(p) {
 
 function ensureSchema() {
   db.exec(SCHEMA);
+  // Migration: add missing columns to existing databases
+  const migrateColumn = (table, col, def) => {
+    try {
+      const cols = db.exec("PRAGMA table_info(" + table + ")");
+      if (!cols.length) return;
+      const names = cols[0].values.map(r => r[1]);
+      if (!names.includes(col)) db.run("ALTER TABLE " + table + " ADD COLUMN " + col + " " + def);
+    } catch (e) {}
+  };
+  migrateColumn('teams', 'updated_at', 'TEXT');
+  migrateColumn('meetings', 'user_id', 'INTEGER');
   const r = db.exec("SELECT value FROM settings WHERE key='schema_version'");
   if (!r.length) {
     db.run("INSERT OR REPLACE INTO settings(key,value) VALUES('schema_version',?)", [String(SCHEMA_VERSION)]);
@@ -214,9 +238,7 @@ function seed() {
     ['Follow-up Deal', 'Halo {nama}, kami ingin memastikan kelanjutan kerja sama {produk}.']
   ];
   tmpls.forEach(tp => run("INSERT OR IGNORE INTO followup_templates(name,template,created_at) VALUES(?,?,?)", [tp[0], tp[1], t]));
-  // Default admin
-  const hash = C.hashPassword('admin123');
-  run("INSERT OR IGNORE INTO users(username,password_hash,name,role,status,must_change_password,created_at) VALUES('admin',?,'Administrator','Admin','Active',1,?)", [hash, t]);
+  // No default admin — user creates their own account via registration screen on first launch.
   // Settings
   const settings = {
     company_name: '',

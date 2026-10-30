@@ -183,7 +183,7 @@ function barChart(data, opts) {
     const y = h - 26 - bh;
     const color = opts.colors ? opts.colors[i] : (opts.color || '#0E76D6');
     bars += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + (bw * 0.64).toFixed(1) + '" height="' + bh.toFixed(1) + '" rx="5" fill="' + color + '">' +
-      '<title>' + (labels[i] || '') + ': ' + opts.fmt ? (opts.fmt(v)) : v + '</title></rect>';
+      '<title>' + (labels[i] || '') + ': ' + (opts.fmt ? opts.fmt(v) : v) + '</title></rect>';
     if (opts.showValues) bars += '<text x="' + (x + bw * 0.32).toFixed(1) + '" y="' + (y - 5).toFixed(1) + '" text-anchor="middle" font-size="9" fill="var(--text-dim)">' + (opts.fmt ? opts.fmt(v) : v) + '</text>';
     bars += '<text x="' + (x + bw * 0.32).toFixed(1) + '" y="' + (h - 10) + '" text-anchor="middle" font-size="9" fill="var(--text-faint)">' + esc(labels[i]) + '</text>';
   });

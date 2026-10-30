@@ -307,7 +307,22 @@ Pages.prospects = {
     const search = $('#pros-search'), stageSel = $('#pros-stage');
     const apply = async () => {
       const r = await svc('listProspects', { search: search.value, stage: stageSel.value });
-      Pages.renderTableInto(box, 'prospects', r);
+      const tbody = box.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = r.length ? r.map(row => `<tr>
+        <td><b>${esc(row.name)}</b></td>
+        <td>${esc(row.company || '—')}</td>
+        <td>${esc(row.source || '—')}</td>
+        <td><span class="badge badge-blue">${esc(row.stage)}</span></td>
+        <td>${fmtRp(row.estimated_value)}</td>
+        <td>${esc(row.owner_name || '—')}</td>
+        <td class="muted">${fmtDate(row.created_at)}</td>
+        <td><div class="row-actions">
+          <button class="mini-btn" onclick="Pages.prospectDetail(${row.id})">Detail</button>
+          <button class="mini-btn" onclick="Pages.prospectForm(${row.id})">Edit</button>
+          <button class="mini-btn danger" onclick="Pages.deleteProspect(${row.id})">🗑</button>
+        </div></td></tr>`).join('') :
+        `<tr><td colspan="8" class="muted" style="text-align:center;padding:20px">Tidak ada prospek ditemukan</td></tr>`;
     };
     search.addEventListener('input', debounce(apply, 350));
     stageSel.addEventListener('change', apply);
@@ -384,9 +399,10 @@ Pages.prospectDetail = async (id) => {
       <button class="btn btn-ghost" data-close>Tutup</button>
       <button class="btn btn-amber" onclick="Pages.quickFollowup(${p.id})">+ Follow-up</button>
       <button class="btn btn-ghost" onclick="Pages.addActivity('prospect', ${p.id})">+ Aktivitas</button>
-      <button class="btn btn-primary" onclick="Pages.prospectForm(${p.id}); ${'m.close()'}">Edit</button>
+      <button class="btn btn-primary" id="pd-edit-btn">Edit</button>
     </div>`, { wide: true });
   m.$('[data-close]').onclick = m.close;
+  m.$('#pd-edit-btn').onclick = () => { m.close(); Pages.prospectForm(p.id); };
   $$('.tab', m.el).forEach(t => t.onclick = () => {
     $$('.tab', m.el).forEach(x => x.classList.toggle('active', x === t));
     m.$('#pd-info').classList.toggle('hidden', t.dataset.t !== 'info');
@@ -446,7 +462,16 @@ Pages.contacts = {
     const search = $('#con-search');
     search.addEventListener('input', debounce(async () => {
       const r = await svc('listContacts', { search: search.value });
-      Pages.contacts.render(box, ctx).catch(() => {});
+      const tbody = box.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = r.length ? r.map(c => `<tr>
+        <td><span class="avatar-mini">${initials(c.name)}</span><b>${esc(c.name)}</b></td>
+        <td>${esc(c.position || '—')}</td><td>${esc(c.company || '—')}</td>
+        <td>${esc(c.email || '—')}</td><td>${esc(c.phone || '—')}</td>
+        <td class="muted">${esc(c.owner_name || '—')}</td>
+        <td><div class="row-actions"><button class="mini-btn" onclick="Pages.contactForm(${c.id})">Edit</button>
+        <button class="mini-btn danger" onclick="Pages.deleteContact(${c.id})">🗑</button></div></td></tr>`).join('') :
+        `<tr><td colspan="7" class="muted" style="text-align:center;padding:20px">Tidak ada kontak ditemukan</td></tr>`;
     }, 350));
   }
 };
@@ -1472,14 +1497,27 @@ Pages.audit = {
             <td class="small muted">${esc((r.detail || '').slice(0, 90))}</td></tr>`).join('')}
         </tbody></table>
       </div>`;
+    const renderAuditRows = (rows) => {
+      const tbody = box.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = rows.length ? rows.map(r => `<tr>
+        <td class="muted">${fmtDateTime(r.timestamp)}</td><td><b>${esc(r.username)}</b></td>
+        <td><span class="badge badge-blue">${esc(r.action)}</span></td>
+        <td class="muted">${esc(r.entity || '')}${r.entity_id ? '#' + r.entity_id : ''}</td>
+        <td class="small muted">${esc((r.detail || '').slice(0, 90))}</td></tr>`).join('') :
+        `<tr><td colspan="5" class="muted" style="text-align:center;padding:20px">Tidak ada log ditemukan</td></tr>`;
+    };
     $('#aud-action').addEventListener('change', async () => {
-      const r = await svc('listAudit', { action: $('#aud-action').value });
-      Pages.audit.render(box, ctx).catch(() => {});
-      setTimeout(() => { const sel = $('#aud-action'); if (sel) sel.value = document.querySelector('#aud-action').value; }, 10);
+      const action = $('#aud-action').value;
+      const search = $('#aud-search').value;
+      const r = await svc('listAudit', { action: action || undefined, search: search || undefined });
+      renderAuditRows(r);
     });
     $('#aud-search').addEventListener('input', debounce(async () => {
-      const r = await svc('listAudit', { search: $('#aud-search').value });
-      Pages.audit.render(box, ctx).catch(() => {});
+      const action = $('#aud-action').value;
+      const search = $('#aud-search').value;
+      const r = await svc('listAudit', { action: action || undefined, search: search || undefined });
+      renderAuditRows(r);
     }, 400));
   }
 };

@@ -1102,8 +1102,13 @@ function doBackup(actor, targetDir, type) {
 
 function doRestore(actor, filePath) {
   try {
-    const meta = DB.restoreFrom(filePath);
-    audit('RESTORE', 'backup', 0, { path: filePath, from: meta.date }, actor);
+    const resolved = path.resolve(String(filePath || ''));
+    const dataDir = path.resolve(appDataDir());
+    if (!resolved.startsWith(dataDir + path.sep) && !resolved.startsWith(dataDir + '/')) {
+      return { ok: false, error: 'Path backup tidak valid atau di luar direktori data.' };
+    }
+    const meta = DB.restoreFrom(resolved);
+    audit('RESTORE', 'backup', 0, { path: resolved, from: meta.date }, actor);
     return { ok: true, meta };
   } catch (e) {
     return { ok: false, error: e.message };
