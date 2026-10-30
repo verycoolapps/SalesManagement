@@ -65,29 +65,42 @@ function setupRegister() {
     const btn = $('#reg-btn');
     btn.disabled = true;
     btn.textContent = 'Membuat akun…';
-
-    // Save company name to settings after login
     AppState._regCompany = company;
 
-    const r = await window.sdp.register({ name, username: uname, password: pass });
-    if (!r.ok) {
-      errEl.textContent = r.error || 'Registrasi gagal.';
+    // ── Register ──────────────────────────────────────────────────
+    let r;
+    try {
+      r = await window.sdp.register({ name, username: uname, password: pass });
+    } catch (ex) {
+      r = { ok: false, error: 'Gagal terhubung ke proses utama: ' + (ex && ex.message ? ex.message : String(ex)) };
+    }
+
+    if (!r || !r.ok) {
+      errEl.textContent = (r && r.error) || 'Registrasi gagal.';
       btn.disabled = false;
       btn.textContent = 'Buat Akun & Mulai →';
       return;
     }
 
-    // Auto-login after registration
-    const lr = await window.sdp.login(uname, pass);
-    if (!lr.ok) {
-      errEl.textContent = 'Akun dibuat, silakan login.';
+    // ── Auto-login ────────────────────────────────────────────────
+    let lr;
+    try {
+      lr = await window.sdp.login(uname, pass);
+    } catch (ex) {
+      lr = { ok: false, error: String(ex && ex.message ? ex.message : ex) };
+    }
+
+    if (!lr || !lr.ok) {
+      // Akun berhasil dibuat tapi auto-login gagal → arahkan ke halaman login biasa
+      toast('Akun berhasil dibuat! Silakan login.', '', 'success');
       showScreen('screen-login');
+      $('#login-user').value = uname;
       setupLogin();
       return;
     }
 
     AppState.user = lr.user;
-    toast('Selamat datang! 🎉', 'Akun Admin berhasil dibuat. Selamat menggunakan SalesDesk Pro!', 'success');
+    toast('Selamat datang! 🎉', 'Akun Admin berhasil dibuat.', 'success');
     enterApp();
   };
 }
