@@ -576,7 +576,8 @@ function runTrueUp(actor, month) {
 /** Forecast: Σ deal open × pct skema aktif (F-12) */
 function commissionForecast(user) {
   const scheme = activeSchemeSnapshot();
-  const deals = DB.query("SELECT * FROM deals WHERE status='Open' AND deleted_at IS NULL AND " + scopeCondition(user, '').replace(/ AND $/, ''));
+  const scope = scopeCondition(user, '').replace(/ AND $/, '');
+  const deals = DB.query("SELECT * FROM deals WHERE status='Open' AND deleted_at IS NULL" + (scope ? ' AND ' + scope : ''));
   let total = 0;
   for (const d of deals) total += calcCommission(scheme, d.value).nominal;
   return { total: Math.round(total), count: deals.length };
@@ -917,7 +918,8 @@ async function exportExcel(user, reportType, opts) {
   if (reportType === 'prospects') {
     const ws = wb.addWorksheet('Prospek');
     ws.columns = [{ header: 'Nama', key: 'name', width: 28 }, { header: 'Perusahaan', key: 'company', width: 28 }, { header: 'Sumber', key: 'source', width: 14 }, { header: 'Tahapan', key: 'stage', width: 14 }, { header: 'Estimasi Nilai', key: 'estimated_value', width: 18 }, { header: 'Pemilik', key: 'owner_name', width: 18 }, { header: 'Dibuat', key: 'created_at', width: 20 }];
-    const rows = DB.query("SELECT p.*, u.name AS owner_name FROM prospects p LEFT JOIN users u ON u.id=p.owner_id WHERE p.deleted_at IS NULL AND " + scopeCondition(user, 'p.').replace(/ AND $/, '') + " ORDER BY p.created_at DESC");
+    const scopeP = scopeCondition(user, 'p.').replace(/ AND $/, '');
+    const rows = DB.query("SELECT p.*, u.name AS owner_name FROM prospects p LEFT JOIN users u ON u.id=p.owner_id WHERE p.deleted_at IS NULL" + (scopeP ? ' AND ' + scopeP : '') + " ORDER BY p.created_at DESC");
     for (const r of rows) ws.addRow({ name: r.name, company: r.company || '', source: r.source || '', stage: r.stage, estimated_value: r.estimated_value, owner_name: r.owner_name || '', created_at: r.created_at });
     ws.getRow(1).eachCell(c => c.style = headerStyle);
     ws.getColumn('estimated_value').numFmt = moneyFmt;
@@ -930,7 +932,8 @@ async function exportExcel(user, reportType, opts) {
   } else if (reportType === 'deals') {
     const ws = wb.addWorksheet('Pipeline & Deal');
     ws.columns = [{ header: 'Nama Deal', key: 'name', width: 30 }, { header: 'Tahapan', key: 'stage', width: 14 }, { header: 'Status', key: 'status', width: 10 }, { header: 'Nilai', key: 'value', width: 18 }, { header: 'Pemilik', key: 'owner_name', width: 18 }, { header: 'Estimasi Closing', key: 'estimated_close', width: 16 }, { header: 'Won Date', key: 'won_date', width: 14 }, { header: 'Catatan', key: 'notes', width: 30 }];
-    const rows = DB.query("SELECT d.*, u.name AS owner_name FROM deals d LEFT JOIN users u ON u.id=d.owner_id WHERE d.deleted_at IS NULL AND " + scopeCondition(user, 'd.').replace(/ AND $/, '') + " ORDER BY d.created_at DESC");
+    const scopeD = scopeCondition(user, 'd.').replace(/ AND $/, '');
+    const rows = DB.query("SELECT d.*, u.name AS owner_name FROM deals d LEFT JOIN users u ON u.id=d.owner_id WHERE d.deleted_at IS NULL" + (scopeD ? ' AND ' + scopeD : '') + " ORDER BY d.created_at DESC");
     for (const r of rows) ws.addRow({ name: r.name, stage: r.stage, status: r.status, value: r.value, owner_name: r.owner_name || '', estimated_close: r.estimated_close || '', won_date: r.won_date || '', notes: r.notes || '' });
     ws.getRow(1).eachCell(c => c.style = headerStyle);
     ws.getColumn('value').numFmt = moneyFmt;
