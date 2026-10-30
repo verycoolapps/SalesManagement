@@ -28,7 +28,8 @@
     "copyright": "Copyright © 2026 VeryCoolApps (PT. Agra Karya Digital) — MIT License",
     "asar": true,
     "asarUnpack": [
-      "**/sql-wasm.wasm"
+      "**/sql-wasm.wasm",
+      "**/sql.js/dist/sql-wasm.wasm"
     ],
     "compression": "normal",
     "npmRebuild": false,
