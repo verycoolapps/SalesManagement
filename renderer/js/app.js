@@ -32,15 +32,64 @@ async function boot() {
     return;
   }
 
-  if (!info.licensed) {
-    showScreen('screen-activate');
-    $('#act-fingerprint').textContent = info.fingerprintLabel || info.fingerprint || '-';
-    $('#act-btn').onclick = doActivate;
+  // First-time setup: no users yet → show registration
+  if (!info.hasUsers) {
+    showScreen('screen-register');
+    setupRegister();
     return;
   }
 
   showScreen('screen-login');
   setupLogin();
+}
+
+function setupRegister() {
+  const form = $('#register-form');
+  const errEl = $('#reg-error');
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    errEl.textContent = '';
+
+    const name    = $('#reg-name').value.trim();
+    const company = $('#reg-company').value.trim();
+    const uname   = $('#reg-user').value.trim();
+    const pass    = $('#reg-pass').value;
+    const pass2   = $('#reg-pass2').value;
+
+    if (!name)   { errEl.textContent = 'Nama lengkap wajib diisi.'; return; }
+    if (!uname)  { errEl.textContent = 'Username wajib diisi.'; return; }
+    if (pass.length < 8) { errEl.textContent = 'Password minimal 8 karakter.'; return; }
+    if (pass !== pass2)  { errEl.textContent = 'Password tidak sama.'; return; }
+
+    const btn = $('#reg-btn');
+    btn.disabled = true;
+    btn.textContent = 'Membuat akun…';
+
+    // Save company name to settings after login
+    AppState._regCompany = company;
+
+    const r = await window.sdp.register({ name, username: uname, password: pass });
+    if (!r.ok) {
+      errEl.textContent = r.error || 'Registrasi gagal.';
+      btn.disabled = false;
+      btn.textContent = 'Buat Akun & Mulai →';
+      return;
+    }
+
+    // Auto-login after registration
+    const lr = await window.sdp.login(uname, pass);
+    if (!lr.ok) {
+      errEl.textContent = 'Akun dibuat, silakan login.';
+      showScreen('screen-login');
+      setupLogin();
+      return;
+    }
+
+    AppState.user = lr.user;
+    toast('Selamat datang! 🎉', 'Akun Admin berhasil dibuat. Selamat menggunakan SalesDesk Pro!', 'success');
+    enterApp();
+  };
 }
 
 function showScreen(id) {
